@@ -14,6 +14,8 @@ const defaultOptions = {
   framework: FRAMEWORK_HTML,
   pattern: /\.(twig)(\?.*)?$/,
 }
+
+addCraftExtensions(Twig)
 Twig.cache(false)
 
 const includeTokenTypes = [
@@ -64,8 +66,6 @@ const compileTemplate = (id, file, { namespaces, root }) => {
     })
   })
 }
-
-Twig.cache(false)
 
 const errorHandler =
   (id, isDefault = true) =>
