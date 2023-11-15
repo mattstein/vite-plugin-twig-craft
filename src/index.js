@@ -41,12 +41,12 @@ const pluckIncludes = (tokens) => {
   })
 }
 
-const compileTemplate = (id, file, { namespaces }) => {
+const compileTemplate = (id, file, { namespaces, root }) => {
   return new Promise((resolve, reject) => {
     const options = { namespaces, rethrow: true, allowInlineIncludes: true }
     twig({
       id,
-      path: file,
+      path: root + '/' + file,
       error: reject,
       allowInlineIncludes: true,
       load(template) {
