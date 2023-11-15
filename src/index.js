@@ -46,7 +46,7 @@ const compileTemplate = (id, file, { namespaces, root }) => {
     const options = { namespaces, rethrow: true, allowInlineIncludes: true }
     twig({
       id,
-      path: root + '/' + file,
+      path: normalizeFilePath(file, root),
       error: reject,
       allowInlineIncludes: true,
       load(template) {
@@ -79,6 +79,16 @@ const errorHandler =
       map: null,
     }
   }
+
+/**
+ * Prepends the template root to the provided file path if it doesn’t already exist
+ * @param {string} file
+ * @param {string} root
+ * @returns
+ */
+const normalizeFilePath = (file, root) => {
+  return file.startsWith(root) ? file : (root + '/' + file);
+}
 
 const plugin = (options = {}) => {
   options = { ...defaultOptions, ...options }
@@ -117,7 +127,7 @@ const plugin = (options = {}) => {
           includes = result.includes
           const includePromises = []
           const processIncludes = (template) => {
-            const file = Twig.path.expandNamespace(options.namespaces, template)
+            const file = Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
             if (!seen.includes(file)) {
               includePromises.push(
                 new Promise(async (resolve, reject) => {
@@ -141,7 +151,7 @@ const plugin = (options = {}) => {
             .map(
               (template) =>
                 `import '${resolve(
-                  Twig.path.expandNamespace(options.namespaces, template)
+                  Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
                 )}';`
             )
             .join("\n")
