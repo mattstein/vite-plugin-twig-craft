@@ -170,7 +170,7 @@ const plugin = (options = {}) => {
         }
         const output = `
         import Twig, { twig } from 'twig';
-        import { addCraftExtensions } from './extensions.js';
+        import { addCraftExtensions } from 'vite-plugin-twig-craft';
         ${frameworkInclude}
 
         ${embed}
@@ -179,7 +179,18 @@ const plugin = (options = {}) => {
         // Disable caching.
         Twig.cache(false);
 
-        ${embeddedIncludes};`
+        ${embeddedIncludes};
+        ${frameworkTransform};
+        export default (context = {}) => {
+          const component = ${code}
+          ${includes ? `component.options.allowInlineIncludes = true;` : ""}
+          try {
+            return frameworkTransform(component.render(context));
+          }
+          catch (e) {
+            return frameworkTransform('An error occurred whilst rendering ${id}: ' + e.toString());
+          }
+        }`
         return {
           code: output,
           map: null,
