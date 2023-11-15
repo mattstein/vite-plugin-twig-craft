@@ -1,5 +1,5 @@
 const filters = [
-  ['test', (value) => { return 'works!'; }]
+  ['test', function test(value) { return 'works!'; }]
 ];
 
 export default filters;

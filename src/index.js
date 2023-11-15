@@ -1,8 +1,7 @@
 import Twig from "twig"
 const { twig } = Twig
 import { resolve } from "node:path"
-import filters from './lib/filters.js';
-import functions from './lib/functions.js';
+import { addCraftExtensions } from "./extensions"
 
 const FRAMEWORK_REACT = "react"
 const FRAMEWORK_HTML = "html"
@@ -83,13 +82,13 @@ const errorHandler =
   }
 
 /**
- * Prepends the template root to the provided file path if it doesn’t already exist
+ * Prepends the template root to the provided relative file path if it doesn’t already exist
  * @param {string} file
  * @param {string} root
  * @returns
  */
 const normalizeFilePath = (file, root) => {
-  return file.startsWith(root) ? file : (root + '/' + file);
+  return file.startsWith(root) || file.startsWith('/') ? file : (root + '/' + file);
 }
 
 const plugin = (options = {}) => {
@@ -170,7 +169,7 @@ const plugin = (options = {}) => {
         }
         const output = `
         import Twig, { twig } from 'twig';
-        import { addCraftExtensions } from 'vite-plugin-twig-craft';
+        import { addCraftExtensions } from 'vite-plugin-twig-craft/extensions';
         ${frameworkInclude}
 
         ${embed}
@@ -199,24 +198,6 @@ const plugin = (options = {}) => {
       }
     },
   }
-}
-
-/**
- * Adds all the extensions to the given Twig instance.
- *
- * @param {Twig} twigInstance
- *   The instance of Twig to modify.
- * @param {Object<string, ?string|Object<string, ?string>>} config
- *   The Drupal config to use.
- */
-export function addCraftExtensions(twigInstance, config = {}) {
-  filters.forEach((filterArguments) => {
-    twigInstance.extendFilter(...filterArguments);
-  });
-
-  functions.forEach((functionArguments) => {
-    twigInstance.extendFunction(...functionArguments);
-  });
 }
 
 export default plugin

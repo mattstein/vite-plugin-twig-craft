@@ -13,6 +13,10 @@
   "license": "GPL-2.0-or-later",
   "main": "./src/index.js",
   "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./extensions": "./src/extensions.js"
+  },
   "scripts": {
     "build": "rm -rf dist && vite build",
     "format": "prettier --write \"{test,src}/**/*.js\"",
