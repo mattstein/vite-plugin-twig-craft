@@ -12,7 +12,7 @@ export default defineConfig({
         menu: resolve(__dirname, "tests/fixtures/menu.twig"),
         errorInclude: resolve(__dirname, "tests/fixtures/error-include.twig"),
       },
-      name: "vite-plugin-twig-drupal",
+      name: "vite-plugin-twig-craft",
       fileName: (_, entry) => `${entry}.js`,
     },
   },

@@ -93,7 +93,7 @@ const normalizeFilePath = (file, root) => {
 const plugin = (options = {}) => {
   options = { ...defaultOptions, ...options }
   return {
-    name: "vite-plugin-twig-drupal",
+    name: "vite-plugin-twig-craft",
     config: ({ root }) => {
       if (!options.root) {
         options.root = root
@@ -168,32 +168,16 @@ const plugin = (options = {}) => {
         }
         const output = `
         import Twig, { twig } from 'twig';
-        import DrupalAttribute from 'drupal-attribute';
-        import { addDrupalExtensions } from 'drupal-twig-extensions/twig';
+        import { addCraftExtensions } from './extensions.js';
         ${frameworkInclude}
-        
+
         ${embed}
 
-        addDrupalExtensions(Twig);
+        addCraftExtensions(Twig);
         // Disable caching.
         Twig.cache(false);
 
-
-        ${embeddedIncludes};
-        ${frameworkTransform};
-        export default (context = {}) => {
-          const component = ${code}
-          ${includes ? `component.options.allowInlineIncludes = true;` : ""}
-          try {
-            return frameworkTransform(component.render({
-            attributes: new DrupalAttribute(),
-              ...context
-            }));
-          }
-          catch (e) {
-            return frameworkTransform('An error occurred whilst rendering ${id}: ' + e.toString());
-          }
-        }`
+        ${embeddedIncludes};`
         return {
           code: output,
           map: null,
