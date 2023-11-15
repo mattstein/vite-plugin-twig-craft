@@ -14,20 +14,7 @@ export function addCraftExtensions(twigInstance, config = {}) {
     twigInstance.extendFilter(...filterArguments);
   });
 
-  twigInstance.extendFunction('tag', function(value) {
-    return value;
-  });
-
-  twigInstance.extendFunction("repeat", function(value, times) {
-      return new Array(times+1).join(value);
-  });
-
-
-
   functions.forEach((functionArguments) => {
     twigInstance.extendFunction(...functionArguments);
   });
-
-  console.log(twigInstance);
-
 }
