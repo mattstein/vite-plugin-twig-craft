@@ -88,6 +88,10 @@ const errorHandler =
  * @returns
  */
 const normalizeFilePath = (file, root) => {
+  if (typeof root === 'undefined') {
+    return file;
+  }
+
   return file.startsWith(root) || file.startsWith('/') ? file : (root + '/' + file);
 }
 
@@ -169,7 +173,7 @@ const plugin = (options = {}) => {
         }
         const output = `
         import Twig, { twig } from 'twig';
-        import { addCraftExtensions } from 'vite-plugin-twig-craft/extensions';
+        import { addCraftExtensions } from '/node_modules/vite-plugin-twig-craft/src/extensions.js';
         ${frameworkInclude}
 
         ${embed}
@@ -184,6 +188,7 @@ const plugin = (options = {}) => {
           const component = ${code}
           ${includes ? `component.options.allowInlineIncludes = true;` : ""}
           try {
+            // TODO: add globals here
             return frameworkTransform(component.render(context));
           }
           catch (e) {
