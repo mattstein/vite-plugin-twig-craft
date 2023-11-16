@@ -1,23 +1,6 @@
 import stringifyAttributes from 'stringify-attributes';
 
 const functions = [
-  // craft
-  // currentSite
-  // currentUser
-  ['siteName', function siteName() { return 'My Site'; }],
-  ['siteUrl', function siteUrl(path) { return 'https://mysite.foo/' + (path ? path : ''); }],
-  // systemName
-  // view
-  // devMode
-  // isInstalled
-  // loginUrl
-  // logoutUrl
-  // setPasswordUrl
-  // now
-  // today
-  // tomorrow
-  // yesterday
-
   // actionUrl
   // alias
   // ceil

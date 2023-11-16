@@ -54,7 +54,7 @@ const compileTemplate = (id, file, { namespaces, root }) => {
       allowInlineIncludes: true,
       load(template) {
         if (typeof template.tokens === "undefined") {
-          reject("Error compiling twig file")
+          reject("Error compiling Twig file")
           return
         }
         resolve({
@@ -71,7 +71,7 @@ const errorHandler =
   (e) => {
     if (isDefault) {
       return {
-        code: `export default () => 'An error occurred whilst rendering ${id}: ${e.toString()}';`,
+        code: `export default () => 'An error occurred rendering ${id}: ${e.toString()}';`,
         map: null,
       }
     }
@@ -174,6 +174,7 @@ const plugin = (options = {}) => {
         const output = `
         import Twig, { twig } from 'twig';
         import { addCraftExtensions } from '/node_modules/vite-plugin-twig-craft/src/extensions.js';
+        import globalVars from '/node_modules/vite-plugin-twig-craft/src/lib/globals.js';
         ${frameworkInclude}
 
         ${embed}
@@ -188,11 +189,10 @@ const plugin = (options = {}) => {
           const component = ${code}
           ${includes ? `component.options.allowInlineIncludes = true;` : ""}
           try {
-            // TODO: add globals here
-            return frameworkTransform(component.render(context));
+            return frameworkTransform(component.render({ ...globalVars, ...context }));
           }
           catch (e) {
-            return frameworkTransform('An error occurred whilst rendering ${id}: ' + e.toString());
+            return frameworkTransform('An error occurred rendering ${id}: ' + e.toString());
           }
         }`
         return {
