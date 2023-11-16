@@ -73,7 +73,6 @@ const filters = [
   // widont
   // without
   // withoutKey
-  ['test', function test(value) { return 'works!'; }],
 ];
 
 export default filters;

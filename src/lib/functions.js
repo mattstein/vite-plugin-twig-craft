@@ -12,7 +12,6 @@ const functions = [
   }],
   // className
   // clone
-  // collect
   ['collect', (value) => { return collect(value); }],
   // combine
   // configure
@@ -35,7 +34,7 @@ const functions = [
   // plugin
   // renderObjectTemplate
   // seq
-  // shuffle
+  ['shuffle', (value) => { return collect(value).shuffle().all(); }],
   // siteUrl
   // url
 
