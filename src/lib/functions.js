@@ -4,7 +4,12 @@ import collect from 'collect-es';
 const functions = [
   // actionUrl
   // alias
-  // ceil
+  ['ceil', (value) => {
+    if (!value || isNaN(value)) {
+      return value;
+    }
+    return Math.ceil(parseFloat(value));
+  }],
   // className
   // clone
   // collect
@@ -17,7 +22,12 @@ const functions = [
   // date
   // dump
   // expression
-  // floor
+  ['floor', (value) => {
+    if (!value || isNaN(value)) {
+      return value;
+    }
+    return Math.floor(parseFloat(value));
+  }],
   // getenv
   // gql
   // parseEnv
@@ -33,13 +43,22 @@ const functions = [
   // attr
   // csrfInput
   // failMessageInput
-  // hiddenInput
-  // input
+  ['hiddenInput', (name, value = '', attributes) => {
+    if (attributes.hasOwnProperty('_keys')) {
+      delete attributes._keys;
+    }
+    return `<input type="hidden" name="${name}" value="${value}"${stringifyAttributes(attributes)}>`;
+  }],
+  ['input', (type, name, value = '', attributes) => {
+    if (attributes.hasOwnProperty('_keys')) {
+      delete attributes._keys;
+    }
+    return `<input type="${type}" name="${name}" value="${value}"${stringifyAttributes(attributes)}>`;
+  }],
   // ol
   // redirectInput
   // successMessageInput
   // svg
-  // tag
   ['tag', (type, attributes) => {
     let text = '';
     let html = '';
