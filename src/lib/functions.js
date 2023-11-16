@@ -1,5 +1,36 @@
 import stringifyAttributes from 'stringify-attributes';
 import collect from 'collect-es';
+import { htmlEscape } from 'escape-goat';
+
+const renderList = (type, items, params) => {
+  let encode = true;
+  let itemOptions = [];
+
+  if (params.hasOwnProperty('_keys')) {
+    delete params._keys;
+  }
+
+  if (params.hasOwnProperty('itemOptions')) {
+    itemOptions = params.itemOptions;
+    delete params.itemOptions;
+
+    if (itemOptions.hasOwnProperty('_keys')) {
+      delete itemOptions._keys;
+    }
+
+    if (itemOptions.hasOwnProperty('encode')) {
+      encode = itemOptions.encode;
+      delete itemOptions.encode;
+    }
+  }
+
+  const renderedItems = items.map((item) => {
+    let text = encode === true ? htmlEscape(item) : item;
+    return `<li${stringifyAttributes(itemOptions)}>${text}</li>`
+  });
+
+  return `<${type}${stringifyAttributes(params)}>${renderedItems.join('')}</${type}>`;
+}
 
 const functions = [
   // actionUrl
@@ -54,11 +85,13 @@ const functions = [
     }
     return `<input type="${type}" name="${name}" value="${value}"${stringifyAttributes(attributes)}>`;
   }],
-  // ol
+  ['ol', (items = [], params = {}) => {
+    return renderList('ol', items, params);
+  }],
   // redirectInput
   // successMessageInput
   // svg
-  ['tag', (type, attributes) => {
+  ['tag', (type, attributes = {}) => {
     let text = '';
     let html = '';
 
@@ -81,8 +114,10 @@ const functions = [
     }
 
     return `<${type}${stringifyAttributes(attributes)}>${html}</${type}>`;
-  }]
-  // ul
+  }],
+  ['ul', (items = [], params = {}) => {
+    return renderList('ul', items, params);
+  }],
 
   // head
   // beginBody

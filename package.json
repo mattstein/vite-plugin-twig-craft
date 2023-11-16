@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "collect-es": "^2.0.2",
+    "escape-goat": "^4.0.0",
     "marked": "^10.0.0",
     "stringify-attributes": "^4.0.0",
     "twig": "^1.16.0"
