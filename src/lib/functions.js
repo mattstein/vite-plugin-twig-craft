@@ -85,9 +85,7 @@ const functions = [
     }
     return `<input type="${type}" name="${name}" value="${value}"${stringifyAttributes(attributes)}>`;
   }],
-  ['ol', (items = [], params = {}) => {
-    return renderList('ol', items, params);
-  }],
+  ['ol', (items = [], params = {}) => { return renderList('ol', items, params); }],
   // redirectInput
   // successMessageInput
   // svg
@@ -115,10 +113,7 @@ const functions = [
 
     return `<${type}${stringifyAttributes(attributes)}>${html}</${type}>`;
   }],
-  ['ul', (items = [], params = {}) => {
-    return renderList('ul', items, params);
-  }],
-
+  ['ul', (items = [], params = {}) => { return renderList('ul', items, params); }],
   // head
   // beginBody
   // endBody
