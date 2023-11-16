@@ -1,3 +1,4 @@
+
 const globalVars = {
   // craft
   // currentSite

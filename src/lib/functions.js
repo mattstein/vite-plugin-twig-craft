@@ -1,4 +1,5 @@
 import stringifyAttributes from 'stringify-attributes';
+import collect from 'collect-es';
 
 const functions = [
   // actionUrl
@@ -7,6 +8,7 @@ const functions = [
   // className
   // clone
   // collect
+  ['collect', (value) => { return collect(value); }],
   // combine
   // configure
   // cpUrl
@@ -38,7 +40,7 @@ const functions = [
   // successMessageInput
   // svg
   // tag
-  ['tag', function tag(type, attributes) {
+  ['tag', (type, attributes) => {
     let text = '';
     let html = '';
 
