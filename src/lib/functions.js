@@ -1,5 +1,5 @@
 import stringifyAttributes from 'stringify-attributes';
-import collect from 'collect-es';
+import collect from 'collect.js';
 import { htmlEscape } from 'escape-goat';
 
 const renderList = (type, items, params) => {

@@ -30,7 +30,7 @@
     "url": "https://github.com/mattstein/vite-plugin-twig-craft.git"
   },
   "dependencies": {
-    "collect-es": "^2.0.2",
+    "collect.js": "^4.36.1",
     "escape-goat": "^4.0.0",
     "marked": "^10.0.0",
     "stringify-attributes": "^4.0.0",
