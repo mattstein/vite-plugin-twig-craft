@@ -2,6 +2,7 @@ import Twig from "twig"
 const { twig } = Twig
 import { resolve } from "node:path"
 import { addCraftExtensions } from "./extensions"
+import * as path from "path";
 
 const FRAMEWORK_REACT = "react"
 const FRAMEWORK_HTML = "html"
@@ -17,6 +18,7 @@ const defaultOptions = {
 addCraftExtensions(Twig)
 Twig.cache(false)
 
+// Parsed Twig.js token types we’ll need to track as dependencies
 const includeTokenTypes = [
   "Twig.logic.type.embed",
   "Twig.logic.type.include",
@@ -24,6 +26,7 @@ const includeTokenTypes = [
   "Twig.logic.type.import",
 ]
 
+// Recursively walks through Twig.js tokens to extract sub-template references
 const pluckIncludes = (tokens) => {
   return [
     ...tokens
@@ -44,6 +47,7 @@ const pluckIncludes = (tokens) => {
   })
 }
 
+// Loads and prepares a template to be used and re-used
 const compileTemplate = (id, file, { namespaces, root }) => {
   return new Promise((resolve, reject) => {
     const options = { namespaces, rethrow: true, allowInlineIncludes: true }
@@ -103,103 +107,114 @@ const plugin = (options = {}) => {
       if (!options.root) {
         options.root = root
       }
+
+      return {
+        resolve: {
+          alias: {
+        		"@twigVite": path.resolve(__dirname, "./"),
+          }
+        }
+      }
     },
     async shouldTransformCachedModule(src, id) {
       return options.pattern.test(id)
     },
     async transform(src, id) {
-      if (options.pattern.test(id)) {
-        let frameworkInclude = ""
-        let frameworkTransform = "const frameworkTransform = (html) => html;"
-        if (options.framework === FRAMEWORK_REACT) {
-          frameworkInclude = `import React from 'react'`
-          frameworkTransform = `const frameworkTransform = (html) => React.createElement('div', {dangerouslySetInnerHTML: {'__html': html}});;`
+      if (! options.pattern.test(id)) {
+        return;
+      }
+
+      let frameworkInclude = ""
+      let frameworkTransform = "const frameworkTransform = (html) => html;"
+      if (options.framework === FRAMEWORK_REACT) {
+        frameworkInclude = `import React from 'react'`
+        frameworkTransform = `const frameworkTransform = (html) => React.createElement('div', {dangerouslySetInnerHTML: {'__html': html}});;`
+      }
+      let embed,
+        embeddedIncludes,
+        code,
+        includes,
+        seen = []
+      try {
+        const result = await compileTemplate(id, id, options).catch(
+          errorHandler(id)
+        )
+        if ("map" in result) {
+          // An error occurred.
+          return result
         }
-        let embed,
-          embeddedIncludes,
-          code,
-          includes,
-          seen = []
-        try {
-          const result = await compileTemplate(id, id, options).catch(
-            errorHandler(id)
-          )
-          if ("map" in result) {
-            // An error occurred.
-            return result
-          }
-          code = result.code
-          includes = result.includes
-          const includePromises = []
-          const processIncludes = (template) => {
-            const file = Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
-            if (!seen.includes(file)) {
-              includePromises.push(
-                new Promise(async (resolve, reject) => {
-                  const { includes, code } = await compileTemplate(
-                    template,
-                    file,
-                    options
-                  ).catch(errorHandler(template, false))
-                  if (includes) {
-                    includes.forEach(processIncludes)
-                  }
-                  resolve(code)
-                })
-              )
-              seen.push(file)
-            }
-          }
-          includes.forEach(processIncludes)
-          embed = includes
-            .filter((template) => template !== "_self")
-            .map(
-              (template) =>
-                `import '${resolve(
-                  Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
-                )}';`
+        code = result.code
+        includes = result.includes
+        const includePromises = []
+        const processIncludes = (template) => {
+          const file = Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
+          if (!seen.includes(file)) {
+            // Prepare this include if we haven’t already
+            includePromises.push(
+              new Promise(async (resolve, reject) => {
+                const { includes, code } = await compileTemplate(
+                  template,
+                  file,
+                  options
+                ).catch(errorHandler(template, false))
+                if (includes) {
+                  includes.forEach(processIncludes)
+                }
+                resolve(code)
+              })
             )
-            .join("\n")
-          const includeResult = await Promise.all(includePromises).catch(
-            errorHandler(id)
+            seen.push(file)
+          }
+        }
+        includes.forEach(processIncludes)
+        embed = includes
+          .filter((template) => template !== "_self")
+          .map(
+            (template) =>
+              `import '${resolve(
+                Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
+              )}';`
           )
-          if (!Array.isArray(includeResult) && "map" in includeResult) {
-            // An error occurred.
-            return includeResult
-          }
-          embeddedIncludes = includeResult.reverse().join("\n")
-        } catch (e) {
-          return errorHandler(id)(e)
+          .join("\n")
+        const includeResult = await Promise.all(includePromises).catch(
+          errorHandler(id)
+        )
+        if (!Array.isArray(includeResult) && "map" in includeResult) {
+          // An error occurred.
+          return includeResult
         }
-        const output = `
-        import Twig, { twig } from 'twig';
-        import { addCraftExtensions } from '/node_modules/vite-plugin-twig-craft/src/extensions.js';
-        import globalVars from '/node_modules/vite-plugin-twig-craft/src/lib/globals.js';
-        ${frameworkInclude}
+        embeddedIncludes = includeResult.reverse().join("\n")
+      } catch (e) {
+        return errorHandler(id)(e)
+      }
+      const output = `
+      import Twig, { twig } from 'twig';
+      import { addCraftExtensions } from '@twigVite/extensions.js';
+      import globalVars from '@twigVite/lib/globals.js';
+      ${frameworkInclude}
 
-        ${embed}
+      ${embed}
 
-        addCraftExtensions(Twig);
-        // Disable caching.
-        Twig.cache(false);
+      addCraftExtensions(Twig);
+      // Disable caching.
+      Twig.cache(false);
 
-        ${embeddedIncludes};
-        ${frameworkTransform};
-        export default (context = {}) => {
-          const component = ${code}
-          ${includes ? `component.options.allowInlineIncludes = true;` : ""}
-          try {
-            return frameworkTransform(component.render({ ...globalVars, ...context }));
-          }
-          catch (e) {
-            return frameworkTransform('An error occurred rendering ${id}: ' + e.toString());
-          }
-        }`
-        return {
-          code: output,
-          map: null,
-          dependencies: seen,
+      ${embeddedIncludes};
+      ${frameworkTransform};
+      export default (context = {}) => {
+        const component = ${code}
+        ${includes ? `component.options.allowInlineIncludes = true;` : ""}
+        try {
+          return frameworkTransform(component.render({ ...globalVars, ...context }));
         }
+        catch (e) {
+          return frameworkTransform('An error occurred rendering ${id}: ' + e.toString());
+        }
+      }`
+      return {
+        code: output,
+        map: null,
+        dependencies: seen,
       }
     },
   }
