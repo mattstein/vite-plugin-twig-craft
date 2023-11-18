@@ -30,11 +30,13 @@
     "url": "https://github.com/mattstein/vite-plugin-twig-craft.git"
   },
   "dependencies": {
+    "case-anything": "^2.1.13",
     "collect.js": "^4.36.1",
     "escape-goat": "^4.0.0",
     "marked": "^10.0.0",
     "stringify-attributes": "^4.0.0",
-    "twig": "^1.16.0"
+    "twig": "^1.16.0",
+    "widont": "^0.4.0"
   },
   "peerDependencies": {
     "vite": "^4.4.11"

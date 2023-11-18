@@ -1,4 +1,7 @@
 import { marked } from "marked";
+import { kebabCase, snakeCase, camelCase, capitalCase, pascalCase } from 'case-anything'
+import collect from 'collect.js';
+import widont from 'widont';
 
 const filters = [
   // address
@@ -9,9 +12,10 @@ const filters = [
   // base64_decode
   // base64_encode
   // boolean
-  // camel
-  // column
-  // contains
+  ['camel', function(value) { return camelCase(value); }],
+  ['contains', function(value, [ targetKey, targetValue ]) {
+    return collect(value).contains(targetKey, targetValue);
+  }],
   // currency
   // date
   // datetime
@@ -22,23 +26,33 @@ const filters = [
   // explodeStyle
   // filesize
   // filter
-  // filterByValue
   // group
   // hash
   // httpdate
   // id
   // index
   // indexOf
-  // integer
-  // intersect
-  // float
+  ['integer', function(value) {
+    if (typeof value === 'boolean') {
+      return value == 'true' || value == 1;
+    }
+
+    if (typeof value === 'array' || typeof value === 'object') {
+      return value.length > 0;
+    }
+
+    return parseInt(value);
+  }],
+  ['intersect', function(value, [ secondValue ]) {
+    return collect(value).intersect(secondValue).all();
+  }],
+  ['float', function(value) { return parseFloat(value); }],
   // json_decode
-  // kebab
+  ['kebab', function(value) { return kebabCase(value); }],
   ['lcfirst', function(value) { return value.charAt(0).toLowerCase() + value.slice(1); }],
   // literal
   ['markdown', function(value) { return marked.parse(value); }],
   ['md', function(value) { return marked.parse(value); }],
-  // merge
   // money
   // multisort
   // namespace
@@ -49,15 +63,14 @@ const filters = [
   // number
   // parseAttr
   // parseRefs
-  // pascal
+  ['pascal', function(value) { return pascalCase(value); }],
   // percentage
   // prepend
   // purify
   // push
   // removeClass
   // rss
-  // snake
-  // sort
+  ['snake', function(value) { return snakeCase(value); }],
   // string
   // time
   // timestamp
@@ -65,12 +78,18 @@ const filters = [
   // truncate
   // t
   ['ucfirst', function(value) { return value.charAt(0).toUpperCase() + value.slice(1); }],
-  // ucwords
-  // unique
+  ['ucwords', function(value) { return capitalCase(value); }],
+  ['unique', function(value) { return collect(value).unique().all(); }],
   // unshift
-  // values
+  ['values', function(value) {
+    if (value.hasOwnProperty('_keys')) {
+      delete value._keys;
+    }
+
+    return collect(value).values().all();
+  }],
   // where
-  // widont
+  ['widont', function(value) { return widont(value); }],
   // without
   // withoutKey
 ];
