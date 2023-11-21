@@ -1,4 +1,4 @@
-const tests = [];
+const tests = []
 
 // array
 // boolean
@@ -14,4 +14,4 @@ const tests = [];
 // scalar
 // string
 
-export default tests;
+export default tests

@@ -1,5 +1,5 @@
-import filters from './lib/filters.js';
-import functions from './lib/functions.js';
+import filters from "./lib/filters.js"
+import functions from "./lib/functions.js"
 
 /**
  * Adds all the extensions to the given Twig instance.
@@ -11,10 +11,10 @@ import functions from './lib/functions.js';
  */
 export function addCraftExtensions(twigInstance, config = {}) {
   filters.forEach((filterArguments) => {
-    twigInstance.extendFilter(...filterArguments);
-  });
+    twigInstance.extendFilter(...filterArguments)
+  })
 
   functions.forEach((functionArguments) => {
-    twigInstance.extendFunction(...functionArguments);
-  });
+    twigInstance.extendFunction(...functionArguments)
+  })
 }

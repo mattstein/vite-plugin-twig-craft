@@ -2,7 +2,7 @@ import Twig from "twig"
 const { twig } = Twig
 import { resolve } from "node:path"
 import { addCraftExtensions } from "./extensions"
-import * as path from "path";
+import * as path from "path"
 
 const FRAMEWORK_REACT = "react"
 const FRAMEWORK_HTML = "html"
@@ -92,11 +92,13 @@ const errorHandler =
  * @returns
  */
 const normalizeFilePath = (file, root) => {
-  if (typeof root === 'undefined') {
-    return file;
+  if (typeof root === "undefined") {
+    return file
   }
 
-  return file.startsWith(root) || file.startsWith('/') ? file : (root + '/' + file);
+  return file.startsWith(root) || file.startsWith("/")
+    ? file
+    : root + "/" + file
 }
 
 const plugin = (options = {}) => {
@@ -111,17 +113,17 @@ const plugin = (options = {}) => {
       return {
         resolve: {
           alias: {
-        		"@twigVite": path.resolve(__dirname, "./"),
-          }
-        }
+            "@twigVite": path.resolve(__dirname, "./"),
+          },
+        },
       }
     },
     async shouldTransformCachedModule(src, id) {
       return options.pattern.test(id)
     },
     async transform(src, id) {
-      if (! options.pattern.test(id)) {
-        return;
+      if (!options.pattern.test(id)) {
+        return
       }
 
       let frameworkInclude = ""
@@ -147,7 +149,10 @@ const plugin = (options = {}) => {
         includes = result.includes
         const includePromises = []
         const processIncludes = (template) => {
-          const file = Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
+          const file = Twig.path.expandNamespace(
+            options.namespaces,
+            normalizeFilePath(template, options.root)
+          )
           if (!seen.includes(file)) {
             // Prepare this include if we haven’t already
             includePromises.push(
@@ -172,7 +177,10 @@ const plugin = (options = {}) => {
           .map(
             (template) =>
               `import '${resolve(
-                Twig.path.expandNamespace(options.namespaces, normalizeFilePath(template, options.root))
+                Twig.path.expandNamespace(
+                  options.namespaces,
+                  normalizeFilePath(template, options.root)
+                )
               )}';`
           )
           .join("\n")
